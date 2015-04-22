@@ -1,0 +1,22 @@
+///User Registration
+1. User can choose "Username" and "Password" (with restrictions like minimum length of 8)
+2. Generate automatically RSA Public Key ("UserPubKey") and Private Key ("UserPrivKey") --- KeyPairGenerator("RSA")
+3. Store the "UserPubKey" in the public storage of the keychain ("KeychainUserPubKey")
+4. Store the "Username" in the public storage of the keychain ("KeychainUsername")
+5. Generate SHA1-Hash from Username and Password ("HashUsernamePassword")
+6. Use the first 16 Bytes (= 128 bits) from "HashUsernamePassword" to encrypt "UserPrivKey" with AES (results in "EncryptedUserPrivKey")
+7. Store the "EncryptedUserPrivKey" in the public storage of the keychain ("KeychainEncryptedUserPrivKey")
+---
+8. Do the necessary stuff to store the whole User in the keyfile
+
+///Login
+1. User has to pass "Username" and "Password"
+2. The system checks in his keyfile if any keychain has a "KeychainUsername" called "Username"
+	2a. Not found: Error message "Username OR Password wrong" and stop
+3. Generate SHA1-Hash from Username and Password ("HashUsernamePassword")
+4. Use the first 16 Bytes (= 128 bits) from "HashUsernamePassword" to decrypt "KeychainEncryptedUserPrivKey" (results in "UserPrivKey")
+5. Generate random string ("RandomTestString") and encrypt it with the "KeychainUserPubKey" (results in "EncryptedRandomTestString")
+6. Decrypt the "EncryptedRandomTestString" with the "UserPrivKey"
+	6a. "EncryptedRandomTestString" does not equal "RandomTestString": Error message "Username OR Password wrong" and stop
+---
+7. Status: Logged in
