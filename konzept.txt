@@ -39,3 +39,17 @@ Annotation: This design results in the rule, that the first 68 Bytes are not enc
 8. Status: Container is opened
 ---
 Annotation: Do we need Lockfiles to disallow multiple writers?
+
+//Container Usage - Extract File
+Prerequisites: User has to be logged in, and has access to the Container
+1. User selects with the UI which file(s) he wants to extract from the Container
+2. User selects the directory in which the file(s) gets extracted
+3. The part of the Container in which the single file(s) is/are encrypted (see information in "Header") get(s) decrypted with the "ContainerKey"
+4. The decrypted file(s) get(s) stored into the selected directory
+---
+Annotation: Watch out for the AES Blocksize (16 Byte Blocks = 128 Bit)
+	* All files begin at a multiple of 16 Byte (relative to the 68 unencrypted Bytes)
+	* If a file size is not a multiple of 16 Byte, fill the last block with zeros (or dummy data)
+		* Example: File ("file.txt", 1000 Byte) is first after Header, begins at relative position 0
+			* File needs 63 AES blocks, but the last is only half filled -> fill with zeros
+			* Save in Header: Filename: file.txt, Size: 1000 Byte, Offset: 0
