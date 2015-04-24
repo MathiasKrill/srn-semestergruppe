@@ -3,23 +3,28 @@
 2. Generate automatically RSA Public Key ("UserPubKey") and Private Key ("UserPrivKey") --- KeyPairGenerator("RSA")
 3. Store the "UserPubKey" in the public storage of the keychain ("KeychainUserPubKey")
 4. Store the "Username" in the public storage of the keychain ("KeychainUsername")
-5. Generate SHA1-Hash from Username and Password ("HashUsernamePassword")
+5. Generate SHA512-Hash from Username and Password ("HashUsernamePassword")
 6. Use the first 16 Bytes (= 128 bits) from "HashUsernamePassword" to encrypt "UserPrivKey" with AES (results in "EncryptedUserPrivKey")
 7. Store the "EncryptedUserPrivKey" in the public storage of the keychain ("KeychainEncryptedUserPrivKey")
 ---
-8. Do the necessary stuff to store the whole User in the keyfile
+8. Do the necessary stuff to store the whole User in the keychain (and later in the keychain-file)
 
 ///Login
 1. User has to pass "Username" and "Password"
 2. The system checks in his keyfile if any keychain has a "KeychainUsername" called "Username"
 	2a. Not found: Error message "Username OR Password wrong" and stop
-3. Generate SHA1-Hash from Username and Password ("HashUsernamePassword")
+3. Generate SHA512-Hash from Username and Password ("HashUsernamePassword")
 4. Use the first 16 Bytes (= 128 bits) from "HashUsernamePassword" to decrypt "KeychainEncryptedUserPrivKey" (results in "UserPrivKey")
 5. Generate random string ("RandomTestString") and encrypt it with the "KeychainUserPubKey" (results in "EncryptedRandomTestString")
 6. Decrypt the "EncryptedRandomTestString" with the "UserPrivKey"
 	6a. "EncryptedRandomTestString" does not equal "RandomTestString": Error message "Username OR Password wrong" and stop
 ---
 7. Status: Logged in
+
+///Key Generation
+///Generating a key means to add a new AES key into your private keychain 
+Prerequisites: User has to be logged in
+1. TODO
 
 ///Container Usage - Open
 Prerequisites: User has to be logged in
@@ -34,13 +39,13 @@ Annotation: This design results in the rule, that the first 68 Bytes are not enc
 ---
 5. Read the next "HeaderLength" Byte as "EncryptedHeader"
 6. Decrypt the "EncryptedHeader" with the "ContainerKey" as "Header"
-7. Deserialize the "Header" to an Object, in which you get the Filenames, their absolute position and length in the Container
+7. Deserialize the "Header" to an Object, in which you get the Filenames, their absolute positions and lengths in the Container
 ---
 8. Status: Container is opened
 ---
 Annotation: Do we need Lockfiles to disallow multiple writers?
 
-//Container Usage - Extract File
+///Container Usage - Extract File
 Prerequisites: User has to be logged in, and has access to the Container
 1. User selects with the UI which file(s) he wants to extract from the Container
 2. User selects the directory in which the file(s) gets extracted
@@ -53,3 +58,17 @@ Annotation: Watch out for the AES Blocksize (16 Byte Blocks = 128 Bit)
 		* Example: File ("file.txt", 1000 Byte) is first after Header, begins at relative position 0
 			* File needs 63 AES blocks, but the last is only half filled -> fill with zeros
 			* Save in Header: Filename: file.txt, Size: 1000 Byte, Offset: 0
+
+///Container Usage - Import File
+Prerequisites: User has to be logged in, and has access to the Container
+1. User selects with a file dialog which file(s) he wants to import into the Container
+2. The file(s) get(s) encrypted in 16 Byte Blocks and written to the end of the Container
+3. The Container Header gets updated with the new Filename, their absolute positions and lengths
+---
+Annotation: Maybe we should ask the User if he wants to delete the original unencrypted file
+
+///Container Usage - Delete File
+///This task has no hashing or encrypting in it. There are no special features in it. No remarks from my side.
+
+///Container Usage - Rename File
+///This task has no hashing or encrypting in it. There are no special features in it. No remarks from my side.
