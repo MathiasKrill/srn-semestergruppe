@@ -20,3 +20,22 @@
 	6a. "EncryptedRandomTestString" does not equal "RandomTestString": Error message "Username OR Password wrong" and stop
 ---
 7. Status: Logged in
+
+///Container Usage - Open
+Prerequisites: User has to be logged in
+1. User selects with a dialog box the path of the container - maybe prefilter with *.crypt
+2. Read the first 64 Byte (512 Bit) as "ContainerKeyHash"
+3. Search for an AES key in your keychain, which SHA512 hash results in "ContainerKeyHash"
+	3a. Not found: Error message "You have no key to open this Container" and stop
+	3b. You get a pointer/reference to the AES key which opens the Container ("ContainerKey")
+4. Read the next 4 Byte (32 Bit) as "HeaderLength"
+---
+Annotation: This design results in the rule, that the first 68 Bytes are not encrypted
+---
+5. Read the next "HeaderLength" Byte as "EncryptedHeader"
+6. Decrypt the "EncryptedHeader" with the "ContainerKey" as "Header"
+7. Deserialize the "Header" to an Object, in which you get the Filenames, their absolute position and length in the Container
+---
+8. Status: Container is opened
+---
+Annotation: Do we need Lockfiles to disallow multiple writers?
