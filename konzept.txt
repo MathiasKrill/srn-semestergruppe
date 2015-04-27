@@ -24,7 +24,21 @@
 ///Key Generation
 ///Generating a key means to add a new AES key into your private keychain 
 Prerequisites: User has to be logged in
-1. TODO
+Annotation: We should use a very independent source for random values - http://stackoverflow.com/questions/10252449/is-aes-key-random
+1. User has to pass a key name "KeyName" to give the key an identifier (e.g. "My Key for Office")
+2. By pressing "Generate" the AES key gets randomly generated (results in "AESKey")
+3. The "AESKey" should immediatly be encrypted by the "KeychainUserPubKey" 
+
+///Container Usage - Create
+1. User has to pass the key from the keychain, which he wants to use for encryption ("ContainerKey")
+/// Annotation: This should be done in the GUI
+2. User selects with a dialog box the path of the new Container - maybe with automatic append of *.crypt
+3. Generate the SHA512 hash from the selected "ContainerKey" and write it to the new file (64 Byte)
+4. Generate a new empty Header Object with no files (as the new Container is empty at the beginning)
+5. Calculate the serialized length of the encrypted(!) empty header object and write it as a 32 Bit Integer to the new file (4 Byte)
+---
+6. Status: The Container is created, but it's still opened in the Software
+Annotation: The user can now close the Container, or import new files into it
 
 ///Container Usage - Open
 Prerequisites: User has to be logged in
